@@ -55,23 +55,24 @@ act_lbl_test_name<-act_lbl[match(act_test[,], act_lbl[,1]),2]
 complete_train<-cbind(sub_train, Activity=act_lbl_train_name, reduced_train)
 complete_test<-cbind(sub_test, Activity=act_lbl_test_name, reduced_test)
 
+
+# combine the train and test files
+# group by Subject and activity
+# summarise the columns to calculate the mean
+Tidy_data_set<-rbind(complete_train, complete_test) %>%
+  group_by(Subject,Activity) %>% 
+  summarise_each(funs(mean))
+
 # rename the names back to original
-names<-names(data)
+names<-names(Tidy_data_set)
 #replace ... by ()
 names<-gsub("std..","std()", names)
 names<-gsub("mean..","mean()", names)
 # replace . by -
 names<-gsub("[:.:]","-", names)
-
 #reset back the name
-names(data)<-names
-
-# combine the train and test files
-# group by Subject and activity
-# summarise the columns to calculate the mean
-result<-rbind(complete_train, complete_test) %>%
-  group_by(Subject,Activity) %>% 
-  summarise_each(funs(mean))
+names(Tidy_data_set)<-names
 
 write.table(result, row.name=FALSE)
 
+write.table(colnames(Tidy_data_set), file = "CodeBook.md", row.name = FALSE, quote = FALSE)
